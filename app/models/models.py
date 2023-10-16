@@ -12,13 +12,13 @@ from app.database.configuration import Base
 #Base is where we start the database
 
 class Restaurant(Base):
-    id = Column(UUID(as_uuid=True), primary_key=True,
-                index=True, default=uuid.uuid4,
-                nullable=False, unique=True,
-                autoincrement=False)
-    date_added = Column(DateTime, default=datetime.datetime.utcnow)
+    __tablename__ = "restaurant"
+    id = Column(Integer, primary_key=True, nullable=False)
+    #date_added = Column(DateTime, default=datetime.datetime.utcnow)
+    date_added = Column(String, nullable=False)
     name = Column(String, nullable=False)
     chef_name = Column(String, nullable=False)
+    '''
     food_category = Column(String, nullable=False)
     menu_name = Column(String, nullable=False)
     food_category = Column(String, nullable=False)
@@ -34,3 +34,4 @@ class Restaurant(Base):
     description = Column(String, nullable=False)
     other_item_name = Column(String, nullable=False)
     podcast_file_path = Column(String, nullable=False)
+    '''

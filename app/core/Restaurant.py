@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schema.RestaurantSchema import Restaurant
+from app.schema.RestaurantSchema import RestaurantBase
 from app.api import restaurant_crud
 from app.database import configuration
 
@@ -11,19 +11,20 @@ get_db = configuration.get_db
 
 #response_model controls input
 @router.post("/new",
-             response_model=Restaurant,
+             response_model=RestaurantBase,
              summary="Make a new Restaurant",
              status_code=status.HTTP_201_CREATED)
-#pydantic verificiation first entry
-def r_restaurant(restaurant: Restaurant, db: Session = Depends(get_db)):
-    #check if restaurant exists
+def r_restaurant(restaurant: RestaurantBase, db: Session = Depends(get_db)):
     db_restaurant = restaurant_crud.get_restaurant_by_id(db,
-                                             id = restaurant.id,
-                                             date = restaurant.date_added,
-                                             name = restaurant.name,
-                                             chef_name = restaurant.chef_name)
+                                             id = restaurant.id)
     if db_restaurant:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Restaurant already exists")
     return restaurant_crud.create_restaurant(db=db, restaurant=restaurant)
 
+@router.get("/id", response_model=RestaurantBase, summary="Find Restaurant by ID", status_code=status.HTTP_200_OK)
+def a_restaurant(id: int, db: Session = Depends(get_db)):
+    db_restaurant = restaurant_crud.get_restaurant_by_id(db, id = id)
+    if db_restaurant is None: 
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Restaurant not found")
+    return db_restaurant
