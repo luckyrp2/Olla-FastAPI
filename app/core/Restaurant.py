@@ -28,3 +28,5 @@ def a_restaurant(id: int, db: Session = Depends(get_db)):
     if db_restaurant is None: 
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Restaurant not found")
     return db_restaurant
+
+    hee

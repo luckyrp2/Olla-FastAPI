@@ -8,7 +8,7 @@ from datetime import datetime
 #Create Restaurant base model
 class RestaurantBase(BaseModel):
     id: int
-    date_added: str
+    date_added: datetime
     name: str
     chef_name: str
     '''
