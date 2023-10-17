@@ -1,6 +1,6 @@
 import os
 #creating the configuration for the database, then a function that error checks it (try/finally)
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker

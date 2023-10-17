@@ -5,12 +5,28 @@ from pydantic import UUID4, BaseModel
 from pydantic.networks import EmailStr
 from datetime import datetime
 
+#from app.schema.DishSchema import Dish
+
 #Create Restaurant base model
 class RestaurantBase(BaseModel):
-    id: int
-    date_added: datetime
-    name: str
-    chef_name: str
+    name: str 
+    chef_name: str 
+    address: str 
+    description: str 
+    is_active: bool
+
+class RestaurantCreate(RestaurantBase): 
+    pass
+
+class Restaurant(RestaurantBase):
+    id: UUID4
+    #featured: List[Dish] = []
+
+    #class Config:
+    #    orm_mode = True
+
+
+
     '''
     food_category: Optional[str]
     menu_name: Optional[str]

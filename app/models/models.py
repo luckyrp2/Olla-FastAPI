@@ -11,11 +11,13 @@ from app.database.configuration import Base
 
 class Restaurant(Base):
     __tablename__ = "restaurant"
-    id = Column(Integer, primary_key=True, nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                index=True, default=uuid.uuid4,
+                nullable=False, unique=True,
+                autoincrement=False)
     name = Column(String, nullable=False)
     chef_name = Column(String, nullable=False)
     address = Column(String, nullable=False)
-    podcast_name = Column(String, nullable=False)
     description = Column(String, nullable=False)
     is_active = Column(String, nullable=False)
 
@@ -24,12 +26,16 @@ class Restaurant(Base):
 class Dish(Base):
     __tablename__ = "dishes"
 
-    id = Column(Integer, primary_key=True, nullable=False) 
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                index=True, default=uuid.uuid4,
+                nullable=False, unique=True,
+                autoincrement=False)
     date_added = Column(DateTime, default=datetime.date)
     menu_name = Column(String, nullable=False)
     stars = Column(Integer, nullable=False)
     description = Column(String, nullable=False)
     other_items = Column(String, nullable=False)
+    is_active = Column(String, nullable=False)
     restaurant_id = Column(Integer, ForeignKey("restaurant.id"))
 
     restaurant = relationship("Restaurant", back_populates="featured")
@@ -38,6 +44,10 @@ class Dish(Base):
 class Content(Base):
     __tablename__ = "content_dish"
 
+    id = Column(UUID(as_uuid=True), primary_key=True,
+                index=True, default=uuid.uuid4,
+                nullable=False, unique=True,
+                autoincrement=False)
     podcast_name = Column(String, nullable=True)
     content_id = Column(Integer, ForeignKey("dishes.id"))
 
