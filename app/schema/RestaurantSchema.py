@@ -19,11 +19,11 @@ class RestaurantCreate(RestaurantBase):
     pass
 
 class Restaurant(RestaurantBase):
-    id: UUID4
+    id: str
     #featured: List[Dish] = []
 
-    #class Config:
-    #    orm_mode = True
+    #lass Config:
+     #   from_attributes = True
 
 
 

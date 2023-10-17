@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from app.schema.RestaurantSchema import RestaurantCreate, Restaurant
+from app.schema import RestaurantSchema
 from app.api import restaurant_crud
 from app.database import configuration
 
@@ -11,10 +11,10 @@ get_db = configuration.get_db
 
 #response_model controls input
 @router.post("/new",
-             response_model=Restaurant,
+             response_model=RestaurantSchema.Restaurant,
              summary="Make a new Restaurant",
              status_code=status.HTTP_201_CREATED)
-def create_new_restaurant(restaurant: RestaurantCreate, db: Session = Depends(get_db)):
+def create_new_restaurant(restaurant: RestaurantSchema.RestaurantBase, db: Session = Depends(get_db)):
     #db_restaurant = restaurant_crud.get_restaurant_by_id(db,
                                              #id = restaurant.id)
    # if db_restaurant:
