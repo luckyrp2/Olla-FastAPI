@@ -1,22 +1,45 @@
 import datetime
 import uuid
-from sqlalchemy import (Column,  DateTime, Integer, String, Boolean, ForeignKey, Text)
+from sqlalchemy import (Column,  DateTime, String, Boolean, Enum, ForeignKey, Integer, Time)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
-
+from app.enums import search_enums
+from app.func import geo_location
 # Local import
 from app.database.configuration import Base
 
 
+    
+
 class Restaurant(Base):
     __tablename__ = "restaurant"
     id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
-
+    date_created = Column(DateTime, default=datetime.datetime.utcnow)
     name = Column(String, nullable=False)
     chef_name = Column(String, nullable=False)
+    cuisine = Column(Enum(search_enums.CuisineEnum), nullable=False)
+    establishment_type = Column(Enum(search_enums.EstablishmentTypeEnum), nullable=False)
     address = Column(String, nullable=False)
+    #lat = Column(String) 
+    #lon = Column(String)
+
     description = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False)
+    open_now = Column(Enum(search_enums.OpenNowEnum), nullable=False)
+    
+    opening_hours = relationship("OpeningHours", back_populates="restaurant")
+
+class OpeningHours(Base):
+    __tablename__ = 'opening_hours'
+
+    id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
+    day_of_week = Column(Enum(search_enums.DayOfWeekEnum), nullable=False)  # e.g., 'Monday', 'Tuesday', ...
+    open_time = Column(Time, nullable=False)
+    close_time = Column(Time, nullable=False)
+    restaurant_id = Column(String, ForeignKey('restaurant.id'))
+
+    # Create a relationship with the Business model if needed
+    restaurant = relationship("Restaurant", back_populates="opening_hours")
 
     #featured = relationship("Dish", back_populates="restaurant")
 '''
