@@ -1,9 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import UUID4, BaseModel
-from app.models.models import OpeningHours
-from pydantic.networks import EmailStr
+from pydantic import BaseModel, validator
 from datetime import datetime, time
 from app.enums import search_enums
 
@@ -19,34 +17,47 @@ class OpeningHoursBase(BaseModel):
 class OpeningHoursCreate(OpeningHoursBase):
     pass
 
-
 class OpeningHours(OpeningHoursBase):
-    id: str
-    restaurant_id: str
+    id: Optional[str]
+    restaurant_id: Optional[str]
 
     class Config:
         orm_mode = True
 
+# Restaurant Models
+
 class RestaurantBase(BaseModel):
-    name: str 
-    chef_name: str 
+    name: str
+    chef_name: str
     cuisine: search_enums.CuisineEnum
     establishment_type: search_enums.EstablishmentTypeEnum
     address: str
-    description: str 
+    description: str
     is_active: bool
     open_now: search_enums.OpenNowEnum
+    lat: Optional[str]
+    lon: Optional[str]
 
-class RestaurantCreate(RestaurantBase): 
+    # Adding a basic validator as an example
+    @validator("name")
+    def validate_name(cls, name):
+        if len(name) < 3:
+            raise ValueError("Restaurant name should be at least 3 characters long.")
+        return name
+
+class RestaurantCreate(RestaurantBase):
     pass
 
-class RestaurantResponse(RestaurantBase):
-    opening_hours: List[OpeningHours] = []
+class DeleteRestaurant(BaseModel):
+    message: str
 
 class Restaurant(RestaurantBase):
-    id: str
-    date_created: datetime
-    opening_hours: List[OpeningHours] = []
+    id: Optional[str]
+    date_created: Optional[datetime]
+    opening_hours: Optional[List[OpeningHoursBase]] = []
+
+    class Config:
+        orm_mode = True
 
     #featured: List[Dish] = []
 
