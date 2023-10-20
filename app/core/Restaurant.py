@@ -9,6 +9,7 @@ from typing import List
 
 router = APIRouter(tags=["Restaurant"], prefix="/restaurant")
 
+
 # Function to get a database session
 get_db = configuration.get_db
 

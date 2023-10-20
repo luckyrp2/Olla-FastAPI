@@ -22,6 +22,8 @@ def create_restaurant(db: Session, restaurant: RestaurantSchema.RestaurantCreate
         name=restaurant.name,
         chef_name=restaurant.chef_name,
         cuisine=restaurant.cuisine,
+        instagram=restaurant.instagram,
+        menu=restaurant.menu,
         establishment_type=restaurant.establishment_type,
         address=restaurant.address,
         description=restaurant.description,

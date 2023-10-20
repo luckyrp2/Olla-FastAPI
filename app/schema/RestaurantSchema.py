@@ -4,6 +4,7 @@ from typing import List, Optional
 from pydantic import BaseModel, validator
 from datetime import datetime, time
 from app.enums import search_enums
+from app.schema.DishSchema import Dish
 
 #from app.schema.DishSchema import Dish
 
@@ -33,6 +34,8 @@ class RestaurantBase(BaseModel):
     establishment_type: search_enums.EstablishmentTypeEnum
     address: str
     description: str
+    menu: str
+    instagram: str
     is_active: bool
     open_now: search_enums.OpenNowEnum
     lat: Optional[str]
@@ -51,19 +54,15 @@ class RestaurantCreate(RestaurantBase):
 class DeleteRestaurant(BaseModel):
     message: str
 
+
 class Restaurant(RestaurantBase):
     id: Optional[str]
     date_created: Optional[datetime]
     opening_hours: Optional[List[OpeningHoursBase]] = []
+    dishes: Optional[List[Dish]] = []
 
     class Config:
         orm_mode = True
-
-    #featured: List[Dish] = []
-
-    #lass Config:
-     #   from_attributes = True
-
 
 
 

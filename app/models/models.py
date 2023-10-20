@@ -16,6 +16,8 @@ class Restaurant(Base):
     id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
     date_created = Column(DateTime, default=datetime.datetime.utcnow)
     name = Column(String, nullable=False)
+    menu = Column(String, nullable=False)
+    instagram = Column(String, nullable=False)
     chef_name = Column(String, nullable=False)
     cuisine = Column(Enum(search_enums.CuisineEnum), nullable=False)
     establishment_type = Column(Enum(search_enums.EstablishmentTypeEnum), nullable=False)
@@ -39,6 +41,7 @@ class Restaurant(Base):
     open_now = Column(Enum(search_enums.OpenNowEnum), nullable=False)
     
     opening_hours = relationship("OpeningHours", back_populates="restaurant")
+    dishes = relationship("Dish", back_populates="restaurant")
 
 class OpeningHours(Base):
     __tablename__ = 'opening_hours'
@@ -52,8 +55,6 @@ class OpeningHours(Base):
     # Create a relationship with the Business model if needed
     restaurant = relationship("Restaurant", back_populates="opening_hours")
 
-    #featured = relationship("Dish", back_populates="restaurant")
-'''
 class Dish(Base):
     __tablename__ = "dishes"
 
@@ -61,16 +62,30 @@ class Dish(Base):
     date_added = Column(DateTime, default=datetime)
     menu_name = Column(String, nullable=False)
     stars = Column(Integer, nullable=False)
+    diet = Column(Enum(search_enums.DietEnum), nullable=False)
+    food_type = Column(Enum(search_enums.FoodTypeEnum), nullable=False)
     description = Column(String, nullable=False)
-    other_items = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False)
     restaurant_id = Column(String, ForeignKey("restaurant.id"))
     
     # Relationship with the Restaurant model
-    restaurant = relationship("Restaurant", back_populates="featured")
+    restaurant = relationship("Restaurant", back_populates="dishes")
+    other_items = relationship("OtherItem", back_populates="dish")
+
+class OtherItem(Base):
+    __tablename__ = "other_items"
+
+    id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
+    name = Column(String, nullable=False)
+    image_link = Column(String, nullable=False)
+    dish_id = Column(String, ForeignKey("dishes.id"))
+
+    # Relationship with the Dish model
+    dish = relationship("Dish", back_populates="other_items")
     
     #content = relationship("Content", back_populates="dish_content")
 
+'''
 class Content(Base):
     __tablename__ = "content_dish"
 

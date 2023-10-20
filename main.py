@@ -12,7 +12,7 @@ from starlette.responses import HTMLResponse
 import app.config.run_config as cfg
 
 # Import router files
-from app.core import Restaurant
+from app.core import Restaurant, Dish
 from app.database.configuration import engine
 # Import local files
 from app.models import models
@@ -37,7 +37,7 @@ def custom_openapi():
 
 # DB Specific endpoints
 app.include_router(Restaurant.router)
-
+app.include_router(Dish.router)
 
 if __name__ == '__main__':
     print(f"Starting Olla API --> {cfg.api['host']}:{cfg.api['port']}\n")
