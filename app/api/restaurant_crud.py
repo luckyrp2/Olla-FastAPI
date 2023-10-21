@@ -6,6 +6,7 @@ from app.models import models
 from app.schema import RestaurantSchema
 from app.enums import search_enums
 from app.func import geo_location
+from typing import List
 
 def create_restaurant(db: Session, restaurant: RestaurantSchema.RestaurantCreate) -> models.Restaurant:
     """
@@ -99,3 +100,11 @@ def get_restaurant_by_name(db: Session, restaurant_name: str) -> models.Restaura
 def delete_restaurant(db: Session, restaurant_id: str):
     db.query(models.Restaurant).filter(models.Restaurant.id == restaurant_id).delete()
     db.commit()
+
+def get_all_restaurants(db: Session) -> List[models.Restaurant]:
+    """Retrieve all restaurants in the database."""
+    return db.query(models.Restaurant).all()
+
+def get_restaurant_by_id(db: Session, restaurant_id: str) -> models.Restaurant:
+    """Retrieve a restaurant by its ID."""
+    return db.query(models.Restaurant).filter(models.Restaurant.id == restaurant_id).first()

@@ -32,10 +32,17 @@ class DishBase(BaseModel):
 class DishCreate(DishBase):
     pass
 
+class RestaurantInfo(BaseModel):
+    restaurant_id: str
+    restaurant_name: str
+
+class DishWithRestaurant(DishBase):
+    restaurant_info: RestaurantInfo
+
 class Dish(DishBase):
     id: Optional[str]
     restaurant_id: Optional[str]
-    items: Optional[List[OtherItem]] = []
+    other_items: Optional[List[OtherItem]] = []
 
     class Config:
         orm_mode = True

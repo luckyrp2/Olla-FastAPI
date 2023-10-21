@@ -45,7 +45,7 @@ def get_restaurant_cuisine(cuisine: search_enums.CuisineEnum, db: Session = Depe
     return db_restaurants
 
 
-@router.get("/restaurant/{restaurant_name}", 
+@router.get("/restaurant_name/{restaurant_name}", 
             response_model=RestaurantSchema.Restaurant, 
             summary="Find Restaurant by Name", 
             status_code=status.HTTP_200_OK)
@@ -82,3 +82,17 @@ def get_opening_hours(opening_hours_create: RestaurantSchema.OpeningHoursCreate,
     
     # Add opening hours and return the updated restaurant object
     return restaurant_crud.add_opening_hours(db=db, restaurant_id=db_restaurant.id, opening_hours_create=opening_hours_create)
+
+@router.get("/all", 
+            response_model=List[RestaurantSchema.Restaurant], 
+            summary="Get All Restaurants", 
+            status_code=status.HTTP_200_OK)
+def get_all_restaurants_endpoint(db: Session = Depends(get_db)):
+    return restaurant_crud.get_all_restaurants(db)
+
+@router.get("/restaurant_id/{restaurant_id}", response_model=RestaurantSchema.RestaurantBase, summary="Get Restaurant by ID", status_code=status.HTTP_200_OK)
+def get_restaurant(restaurant_id: str, db: Session = Depends(get_db)):
+    restaurant = restaurant_crud.get_restaurant_by_id(db, restaurant_id)
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    return restaurant
