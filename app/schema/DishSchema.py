@@ -4,7 +4,7 @@ from app.enums import search_enums  # Replace with your actual import path
 from datetime import datetime, time
 # ... [other schema classes]
 
-# Define your Dish schemas
+# ... [Your existing Pydantic models]
 
 class OtherItemBase(BaseModel):
     name: str
@@ -18,7 +18,7 @@ class OtherItem(OtherItemBase):
     dish_id: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_orm = True
 
 class DishBase(BaseModel):
     date_added: datetime
@@ -29,8 +29,15 @@ class DishBase(BaseModel):
     description: str
     is_active: bool
 
+    podcast_name: Optional[str]
+    podcast_file_path: Optional[str]
+    video_file_path: Optional[str]
+    card_photo_file_path: Optional[str]
+    filler_photos: Optional[List[str]]
+
 class DishCreate(DishBase):
     pass
+    
 
 class RestaurantInfo(BaseModel):
     restaurant_id: str
@@ -45,4 +52,4 @@ class Dish(DishBase):
     other_items: Optional[List[OtherItem]] = []
 
     class Config:
-        orm_mode = True
+        from_orm = True

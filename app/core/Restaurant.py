@@ -96,3 +96,34 @@ def get_restaurant(restaurant_id: str, db: Session = Depends(get_db)):
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found")
     return restaurant
+
+@router.get("/restaurants_by_city/{greater_city}", 
+            response_model=List[RestaurantSchema.Restaurant], 
+            summary="Get All Restaurants by Greater City Area", 
+            status_code=status.HTTP_200_OK)
+def get_restaurants_by_city(greater_city: str, db: Session = Depends(get_db)):
+    restaurants = restaurant_crud.get_restaurants_by_greater_city(db, greater_city)
+    if not restaurants:
+        raise HTTPException(status_code=404, detail=f"No restaurants found in {greater_city} area.")
+    return restaurants
+
+@router.put("/update_lat_lon",
+            response_model=List[RestaurantSchema.RestaurantLocationUpdate],
+            summary="Update Missing Lat and Lon for Restaurants",
+            status_code=status.HTTP_200_OK)
+def update_lat_lon_for_restaurants(db: Session = Depends(get_db)):
+    # Use the previously defined function to update the restaurants with missing lat/lon
+    return restaurant_crud.update_missing_lat_lon(db)
+    
+    # Query all restaurants and return their names, lats, and lons
+    
+    return result
+
+@router.put("/check-open-now", 
+            response_model=RestaurantSchema.OpenRestaurantResponse, 
+            summary="Check and Update Restaurants Open Now", 
+            status_code=status.HTTP_200_OK)
+def check_and_update_open_now(check_data: RestaurantSchema.CheckOpenNow, db: Session = Depends(get_db)):
+    open_restaurants = restaurant_crud.get_open_restaurants(db=db, day_of_week=check_data.day_of_week.value, current_time_str=check_data.current_time)
+    return {"open_restaurants": open_restaurants}
+

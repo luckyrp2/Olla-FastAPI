@@ -6,14 +6,14 @@ from app.database import configuration
 from app.enums import search_enums
 from app.func import geo_location
 from typing import List
+from datetime import datetime
 
 router = APIRouter(tags=["Dish"], prefix="/dish")
 
 # Function to get a database session
 get_db = configuration.get_db
 
-@router.post("/new/{restaurant_name}", response_model=DishSchema.DishBase, summary="Add Dish Based on Restaurant Name",
-             status_code=status.HTTP_201_CREATED)
+@router.post("/restaurants/{restaurant_name}/dishes/", response_model=DishSchema.Dish, status_code=status.HTTP_201_CREATED)
 def create_dish_for_restaurant(restaurant_name: str, dish: DishSchema.DishCreate, db: Session = Depends(get_db)):
     return dish_crud.create_dish_for_restaurant(db=db, restaurant_name=restaurant_name, dish=dish)
 
@@ -40,3 +40,5 @@ def get_dishes_by_cuisine(establishment: search_enums.EstablishmentTypeEnum, db:
             status_code=status.HTTP_200_OK)
 def get_all_dishes_endpoint(db: Session = Depends(get_db)):
     return dish_crud.get_all_dishes(db)
+
+

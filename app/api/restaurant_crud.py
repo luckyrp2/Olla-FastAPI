@@ -1,12 +1,14 @@
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
-from datetime import time
+from datetime import datetime
+from sqlalchemy import func
 
 from app.models import models
 from app.schema import RestaurantSchema
 from app.enums import search_enums
 from app.func import geo_location
 from typing import List
+
 
 def create_restaurant(db: Session, restaurant: RestaurantSchema.RestaurantCreate) -> models.Restaurant:
     """
@@ -19,6 +21,19 @@ def create_restaurant(db: Session, restaurant: RestaurantSchema.RestaurantCreate
     Returns:
     - models.Restaurant: The created restaurant.
     """
+
+    new_address = models.Address(
+        street=restaurant.address.street,
+        city=restaurant.address.city,
+        great_city=restaurant.address.great_city,
+        state=restaurant.address.state,
+        zipcode=restaurant.address.zipcode
+        # add any other fields from the Address schema here
+    )
+    db.add(new_address)
+    db.commit()
+    db.refresh(new_address)
+
     new_restaurant = models.Restaurant(
         name=restaurant.name,
         chef_name=restaurant.chef_name,
@@ -26,7 +41,7 @@ def create_restaurant(db: Session, restaurant: RestaurantSchema.RestaurantCreate
         instagram=restaurant.instagram,
         menu=restaurant.menu,
         establishment_type=restaurant.establishment_type,
-        address=restaurant.address,
+        address=new_address,
         description=restaurant.description,
         is_active=restaurant.is_active,
         open_now=restaurant.open_now
@@ -108,3 +123,72 @@ def get_all_restaurants(db: Session) -> List[models.Restaurant]:
 def get_restaurant_by_id(db: Session, restaurant_id: str) -> models.Restaurant:
     """Retrieve a restaurant by its ID."""
     return db.query(models.Restaurant).filter(models.Restaurant.id == restaurant_id).first()
+
+def get_restaurants_by_greater_city(db: Session, greater_city: str) -> List[models.Restaurant]:
+    """Retrieve all restaurants in a given greater city area."""
+    return db.query(models.Restaurant)\
+             .filter(models.Restaurant.address.has(models.Address.great_city == greater_city))\
+             .all()
+
+from typing import List
+
+def update_missing_lat_lon(db: Session) -> List[RestaurantSchema.RestaurantLocationUpdate]:
+    # Query for all restaurants with NULL lat and lon in their associated addresses
+    null_locations = db.query(models.Restaurant).join(models.Address).filter(models.Address.lat.is_(None), models.Address.lon.is_(None)).all()
+
+    updated_names = []  # Store names of restaurants that will be updated
+
+    for restaurant in null_locations:
+        # Construct the address string
+        address_string = f"{restaurant.address.street} {restaurant.address.city} {restaurant.address.state} {restaurant.address.zipcode}"
+        
+        lat, lon = geo_location.extract_lat_long_via_address(address_string)
+        restaurant.address.lat = lat
+        restaurant.address.lon = lon
+        updated_names.append(restaurant.name)
+
+    db.commit()
+
+    # Now, retrieve updated latitude and longitude for the restaurants
+    updated_restaurants = db.query(models.Restaurant.name, models.Address.lat, models.Address.lon).join(models.Address).filter(models.Restaurant.name.in_(updated_names)).all()
+    
+    # Convert the result to the Pydantic model
+    result = [RestaurantSchema.RestaurantLocationUpdate(name=name, lat=lat, lon=lon) for name, lat, lon in updated_restaurants]
+    return result
+
+# In restaurant_crud.py or wherever your CRUD functions are defined
+
+# In restaurant_crud.py or wherever your CRUD functions are defined
+
+from datetime import datetime, time
+
+def get_open_restaurants(db: Session, day_of_week: int, current_time_str: str) -> List[str]:
+    
+    # Try converting the string to a time object
+    try:
+        current_time = datetime.strptime(current_time_str, "%H:%M").time()
+    except ValueError:
+        raise ValueError(f"Time {current_time_str} is not in the correct format HH:MM")
+
+    print(type(current_time))
+    open_restaurants = (
+        db.query(models.Restaurant.id)
+        .join(models.OpeningHours)
+        .filter(
+            models.OpeningHours.day_of_week == day_of_week,
+            func.time(models.OpeningHours.open_time) <= current_time,
+            func.time(models.OpeningHours.close_time) > current_time
+        )
+        .all()
+    )
+
+    # Extract the list of restaurant IDs
+    restaurant_ids = [restaurant.id for restaurant in open_restaurants]
+
+    # Update the 'open_now' status for these restaurants
+    db.query(models.Restaurant).filter(models.Restaurant.id.in_(restaurant_ids)).update({models.Restaurant.open_now: search_enums.OpenNowEnum.OPEN.value}, synchronize_session=False)
+    db.commit()
+
+    return restaurant_ids
+
+

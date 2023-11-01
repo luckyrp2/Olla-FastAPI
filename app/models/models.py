@@ -1,6 +1,6 @@
 import datetime
 import uuid
-from sqlalchemy import (Column,  DateTime, String, Boolean, Enum, ForeignKey, Integer, Time)
+from sqlalchemy import (Column,  JSON, DateTime, String, Boolean, Enum, ForeignKey, Integer, Time, Float)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship, validates
 from app.enums import search_enums
@@ -9,10 +9,24 @@ from app.func import geo_location
 from app.database.configuration import Base
 
 
-    
+class Address(Base):
+    __tablename__ = "addresses"
+
+    id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
+    street = Column(String, nullable=False)
+    city = Column(String, nullable=False)
+    great_city = Column(String)
+    state = Column(String, nullable=False)
+    zipcode = Column(String, nullable=False)
+    lat = Column(Float)
+    lon = Column(Float)
+
+    restaurant_id = Column(String, ForeignKey('restaurant.id'), unique=True)
+    restaurant = relationship("Restaurant", back_populates="address")
 
 class Restaurant(Base):
     __tablename__ = "restaurant"
+    
     id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
     date_created = Column(DateTime, default=datetime.datetime.utcnow)
     name = Column(String, nullable=False)
@@ -21,45 +35,37 @@ class Restaurant(Base):
     chef_name = Column(String, nullable=False)
     cuisine = Column(Enum(search_enums.CuisineEnum), nullable=False)
     establishment_type = Column(Enum(search_enums.EstablishmentTypeEnum), nullable=False)
-    address = Column(String, nullable=False)
-    lat = Column(String) 
-    lon = Column(String)
-
-    @validates('address')
-    def _validate_address(self, key, address):
-        # Compute lat and lon from the address
-        lat, lon = geo_location.extract_lat_long_via_address(address)
-        print(lat)
-        # Set the lat and lon fields
-        self.lat = lat
-        self.lon = lon
-
-        return address
-    
     description = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False)
     open_now = Column(Enum(search_enums.OpenNowEnum), nullable=False)
-    
+
+    # Link to Address model
+    #address_id = Column(String, ForeignKey('addresses.id'))
+
+
     opening_hours = relationship("OpeningHours", back_populates="restaurant")
+    # One-to-one relationship with Address
+    address = relationship("Address", back_populates="restaurant", uselist=False)
+    # One-to-many relationship with Dishes
     dishes = relationship("Dish", back_populates="restaurant")
+
 
 class OpeningHours(Base):
     __tablename__ = 'opening_hours'
 
     id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
-    day_of_week = Column(Enum(search_enums.DayOfWeekEnum), nullable=False)  # e.g., 'Monday', 'Tuesday', ...
-    open_time = Column(Time, nullable=False)
-    close_time = Column(Time, nullable=False)
+    day_of_week = Column(Enum(search_enums.DayOfWeekEnum), nullable=False)
+    open_time = Column(Time, nullable=False, default="09:00")
+    close_time = Column(Time, nullable=False, default="17:00")
     restaurant_id = Column(String, ForeignKey('restaurant.id'))
 
-    # Create a relationship with the Business model if needed
     restaurant = relationship("Restaurant", back_populates="opening_hours")
 
 class Dish(Base):
     __tablename__ = "dishes"
 
     id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
-    date_added = Column(DateTime, default=datetime)
+    date_added = Column(DateTime, default=datetime.datetime.utcnow)
     menu_name = Column(String, nullable=False)
     stars = Column(Integer, nullable=False)
     diet = Column(Enum(search_enums.DietEnum), nullable=False)
@@ -67,11 +73,18 @@ class Dish(Base):
     description = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False)
     restaurant_id = Column(String, ForeignKey("restaurant.id"))
-    
-    # Relationship with the Restaurant model
     restaurant = relationship("Restaurant", back_populates="dishes")
+
+    podcast_name = Column(String, nullable=True)
+    video_file_path = Column(String, nullable=False)
+    card_photo_file_path = Column(String, nullable=False)
+    podcast_file_path = Column(String, nullable=False)
+    filler_photos = Column(JSON, nullable=False)
+    
+    # One-to-many relationship with OtherItems
     other_items = relationship("OtherItem", back_populates="dish")
 
+    
 class OtherItem(Base):
     __tablename__ = "other_items"
 
@@ -80,29 +93,19 @@ class OtherItem(Base):
     image_link = Column(String, nullable=False)
     dish_id = Column(String, ForeignKey("dishes.id"))
 
-    # Relationship with the Dish model
     dish = relationship("Dish", back_populates="other_items")
-    
-    #content = relationship("Content", back_populates="dish_content")
 
 '''
 class Content(Base):
     __tablename__ = "content_dish"
 
-    id = Column(UUID(as_uuid=True), primary_key=True,
-                index=True, default=uuid.uuid4,
-                nullable=False, unique=True,
-                autoincrement=False)
+    id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
     podcast_name = Column(String, nullable=True)
-    content_id = Column(Integer, ForeignKey("dishes.id"))
-
-    dish_content = relationship("Dish", back_populates="content")
-
-
-    podcast_file_path = Column(String, nullable=False)
     video_file_path = Column(String, nullable=False)
     card_photo_file_path = Column(String, nullable=False)
     podcast_file_path = Column(String, nullable=False)
-    menu_list_photo_file_path = Column(String, nullable=False)
-    other_item_name = Column(String, nullable=False)
+    filler_photos = Column(JSON, nullable=False)
+
+    dish_id = Column(String(length=36), ForeignKey('dishes.id'))
+    dish = relationship("Dish", back_populates="content_info")
 '''
