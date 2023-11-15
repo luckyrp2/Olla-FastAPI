@@ -116,8 +116,9 @@ def update_lat_lon_for_restaurants(db: Session = Depends(get_db)):
     return restaurant_crud.update_missing_lat_lon(db)
     
     # Query all restaurants and return their names, lats, and lons
+
     
-    return result
+    # Query all restaurants and return their names, lats, and lons
 
 @router.put("/check-open-now", 
             response_model=RestaurantSchema.OpenRestaurantResponse, 

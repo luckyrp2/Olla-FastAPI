@@ -46,11 +46,8 @@ class OpeningHours(OpeningHoursBase):
     id: Optional[str]
     restaurant_id: Optional[str]
 
-    class Config:
-        from_orm = True
 
 # Address Model
-# Address Models
 class AddressBase(BaseModel):
     street: str
     city: str
@@ -67,8 +64,6 @@ class Address(AddressBase):
     lat: Optional[float]
     lon: Optional[float]
 
-    class Config:
-        orm_mode = True
 
 class RestaurantLocationUpdate(BaseModel):
     name: str
@@ -81,7 +76,7 @@ class RestaurantBase(BaseModel):
     chef_name: str
     cuisine: search_enums.CuisineEnum
     establishment_type: search_enums.EstablishmentTypeEnum
-    address: AddressBase
+    address: Address
     description: str
     menu: str
     instagram: str
@@ -106,8 +101,3 @@ class Restaurant(RestaurantBase):
     opening_hours: Optional[List[OpeningHoursBase]] = []
     dishes: Optional[List[Dish]] = []
 
-    class Config:
-        from_orm = True
-
-# Note: The Dish model wasn't provided in the code you shared.
-# Ensure you have it implemented in your codebase.

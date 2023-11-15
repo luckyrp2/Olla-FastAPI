@@ -74,17 +74,26 @@ class Dish(Base):
     is_active = Column(Boolean, nullable=False)
     restaurant_id = Column(String, ForeignKey("restaurant.id"))
     restaurant = relationship("Restaurant", back_populates="dishes")
-
-    podcast_name = Column(String, nullable=True)
-    video_file_path = Column(String, nullable=False)
-    card_photo_file_path = Column(String, nullable=False)
-    podcast_file_path = Column(String, nullable=False)
-    filler_photos = Column(JSON, nullable=False)
+    podcast_name = Column(String, nullable=False)
     
     # One-to-many relationship with OtherItems
     other_items = relationship("OtherItem", back_populates="dish")
+    content = relationship("Content", back_populates="dish", uselist=False)
 
-    
+
+class Content(Base):
+    __tablename__ = "content_dish"
+
+    id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
+    video_file_path = Column(String, nullable=True)  # Change to nullable
+    card_photo_file_path = Column(String, nullable=True)  # Change to nullable
+    podcast_file_path = Column(String, nullable=True)  # Change to nullable
+    filler_photos = Column(JSON, nullable=True)  # Change to nullable
+
+    dish_id = Column(String(length=36), ForeignKey('dishes.id'))
+    dish = relationship("Dish", back_populates="content")
+
+
 class OtherItem(Base):
     __tablename__ = "other_items"
 
@@ -94,18 +103,3 @@ class OtherItem(Base):
     dish_id = Column(String, ForeignKey("dishes.id"))
 
     dish = relationship("Dish", back_populates="other_items")
-
-'''
-class Content(Base):
-    __tablename__ = "content_dish"
-
-    id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
-    podcast_name = Column(String, nullable=True)
-    video_file_path = Column(String, nullable=False)
-    card_photo_file_path = Column(String, nullable=False)
-    podcast_file_path = Column(String, nullable=False)
-    filler_photos = Column(JSON, nullable=False)
-
-    dish_id = Column(String(length=36), ForeignKey('dishes.id'))
-    dish = relationship("Dish", back_populates="content_info")
-'''

@@ -8,11 +8,14 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session, joinedload
 from datetime import time
 from typing import List, Optional
+from app.func.s3_amazon import get_content, FileType
+from sqlalchemy.orm import joinedload
+
 
 from app.models import models
 
 # CRUD for Dish
-def create_dish_for_restaurant(db: Session, restaurant_name: str, dish_data: DishSchema.DishCreate):
+def create_dish_for_restaurant(db: Session, restaurant_name: str, dish: DishSchema.DishCreate):
     # Fetch the restaurant by its name
     restaurant = db.query(models.Restaurant).filter(models.Restaurant.name == restaurant_name).first()
     
@@ -21,7 +24,7 @@ def create_dish_for_restaurant(db: Session, restaurant_name: str, dish_data: Dis
         raise HTTPException(status_code=404, detail="Restaurant not found")
     
     # Create the Dish instance with the restaurant's ID
-    db_dish = models.Dish(**dish_data.dict(), restaurant_id=restaurant.id)
+    db_dish = models.Dish(**dish.dict(), restaurant_id=restaurant.id)
     
     # Add to the session and commit
     db.add(db_dish)
@@ -171,3 +174,42 @@ def get_dishes_from_open_restaurants(db: Session, current_time: time, current_da
             dishes.append(dish)
 
     return dishes
+
+
+def update_dish_content_paths(db: Session) -> List[models.Dish]:
+    # Fetch all dishes, along with their related content
+    dishes = db.query(models.Dish).options(joinedload(models.Dish.content)).all()
+
+
+    updated_dishes = []
+    for dish in dishes:
+
+        # Check if dish.content exists, if not, create a new Content object
+        if not dish.content:
+            dish.content = models.Content(dish_id=dish.id)
+
+        # Update podcast file path
+        podcast_urls = get_content(dish.restaurant.name, dish.menu_name, FileType.podcast_file_path)
+        if podcast_urls:
+            dish.content.podcast_file_path = podcast_urls[0]
+
+        # Update video file path
+        video_urls = get_content(dish.restaurant.name, dish.menu_name, FileType.video_file_path)
+        if video_urls:
+            dish.content.video_file_path = video_urls[0]
+
+        # Update card photo file path
+        cover_image_urls = get_content(dish.restaurant.name, dish.menu_name, FileType.card_photo_file_path)
+        print(cover_image_urls)
+        if cover_image_urls:
+            dish.content.card_photo_file_path = cover_image_urls[0]
+        
+        additional_images_urls = get_content(dish.restaurant.name, dish.menu_name, FileType.filler_photos)
+        if additional_images_urls:
+            dish.content.filler_photos = additional_images_urls
+
+        db.commit()
+        db.refresh(dish)
+        updated_dishes.append(dish)
+
+    return updated_dishes

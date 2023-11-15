@@ -6,6 +6,12 @@ from datetime import datetime, time
 
 # ... [Your existing Pydantic models]
 
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+from app.enums import search_enums
+
+# Other Item Models
 class OtherItemBase(BaseModel):
     name: str
     image_link: str
@@ -17,9 +23,15 @@ class OtherItem(OtherItemBase):
     id: Optional[str]
     dish_id: Optional[str]
 
-    class Config:
-        from_orm = True
 
+# Content Information Model
+class ContentInfo(BaseModel):
+    podcast_file_path: Optional[str] = None
+    video_file_path: Optional[str] = None
+    card_photo_file_path: Optional[str] = None
+    filler_photos: Optional[List[str]] = []
+
+# Dish Models
 class DishBase(BaseModel):
     date_added: datetime
     menu_name: str
@@ -28,28 +40,24 @@ class DishBase(BaseModel):
     food_type: search_enums.FoodTypeEnum
     description: str
     is_active: bool
-
     podcast_name: Optional[str]
-    podcast_file_path: Optional[str]
-    video_file_path: Optional[str]
-    card_photo_file_path: Optional[str]
-    filler_photos: Optional[List[str]]
 
 class DishCreate(DishBase):
     pass
-    
-
-class RestaurantInfo(BaseModel):
-    restaurant_id: str
-    restaurant_name: str
-
-class DishWithRestaurant(DishBase):
-    restaurant_info: RestaurantInfo
 
 class Dish(DishBase):
     id: Optional[str]
     restaurant_id: Optional[str]
     other_items: Optional[List[OtherItem]] = []
+    content: Optional[ContentInfo] = []
 
-    class Config:
-        from_orm = True
+# Restaurant Information Model
+class RestaurantInfo(BaseModel):
+    restaurant_id: str
+    restaurant_name: str
+
+# Dish with Restaurant Information
+class DishWithRestaurant(DishBase):
+    restaurant_info: RestaurantInfo
+
+

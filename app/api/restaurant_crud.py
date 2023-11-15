@@ -170,7 +170,6 @@ def get_open_restaurants(db: Session, day_of_week: int, current_time_str: str) -
     except ValueError:
         raise ValueError(f"Time {current_time_str} is not in the correct format HH:MM")
 
-    print(type(current_time))
     open_restaurants = (
         db.query(models.Restaurant.id)
         .join(models.OpeningHours)

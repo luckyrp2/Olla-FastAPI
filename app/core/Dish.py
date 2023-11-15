@@ -13,7 +13,7 @@ router = APIRouter(tags=["Dish"], prefix="/dish")
 # Function to get a database session
 get_db = configuration.get_db
 
-@router.post("/restaurants/{restaurant_name}/dishes/", response_model=DishSchema.Dish, status_code=status.HTTP_201_CREATED)
+@router.post("/restaurants/{restaurant_name}/dishes/", response_model=DishSchema.DishBase, status_code=status.HTTP_201_CREATED)
 def create_dish_for_restaurant(restaurant_name: str, dish: DishSchema.DishCreate, db: Session = Depends(get_db)):
     return dish_crud.create_dish_for_restaurant(db=db, restaurant_name=restaurant_name, dish=dish)
 
@@ -34,6 +34,7 @@ def get_dishes_by_cuisine(cuisine: search_enums.CuisineEnum, db: Session = Depen
 def get_dishes_by_cuisine(establishment: search_enums.EstablishmentTypeEnum, db: Session = Depends(get_db)):
     return dish_crud.get_dishes(db, establishment=establishment)
 
+
 @router.get("/all", 
             response_model=List[DishSchema.Dish], 
             summary="Get All Dishes", 
@@ -42,3 +43,11 @@ def get_all_dishes_endpoint(db: Session = Depends(get_db)):
     return dish_crud.get_all_dishes(db)
 
 
+@router.put("/update_content",
+            response_model=List[DishSchema.Dish],
+            summary="Update Content for Dishes",
+            status_code=status.HTTP_200_OK)
+def update_lat_lon_for_restaurants(db: Session = Depends(get_db)):
+    # Use the previously defined function to update the restaurants with missing lat/lon
+    return dish_crud.update_dish_content_paths(db)
+    
