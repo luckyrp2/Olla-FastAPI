@@ -26,8 +26,8 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Nauclerus Logbook API",
-        description="Aviation logbook API for all pilots.",
+        title="Olla Api",
+        description="Olla App",
         routes=app.routes,
     )
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
             debug=bool(cfg.api['debug'])
         )
     except KeyboardInterrupt:
-        print("Stopping Nauclerus API")
+        print("Stopping Olla API")
     except Exception as e:
         print(f"Start Failed\n{'#'*100}")
         traceback.print_exc(file=sys.stdout)

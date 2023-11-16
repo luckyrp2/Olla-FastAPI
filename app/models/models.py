@@ -38,6 +38,7 @@ class Restaurant(Base):
     description = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False)
     open_now = Column(Enum(search_enums.OpenNowEnum), nullable=False)
+    
 
     # Link to Address model
     #address_id = Column(String, ForeignKey('addresses.id'))
@@ -72,9 +73,11 @@ class Dish(Base):
     food_type = Column(Enum(search_enums.FoodTypeEnum), nullable=False)
     description = Column(String, nullable=False)
     is_active = Column(Boolean, nullable=False)
+    is_featured = Column(Boolean, default=False, nullable=False)
+    podcast_name = Column(String, nullable=False)
+
     restaurant_id = Column(String, ForeignKey("restaurant.id"))
     restaurant = relationship("Restaurant", back_populates="dishes")
-    podcast_name = Column(String, nullable=False)
     
     # One-to-many relationship with OtherItems
     other_items = relationship("OtherItem", back_populates="dish")
@@ -85,10 +88,10 @@ class Content(Base):
     __tablename__ = "content_dish"
 
     id = Column('id', String(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
-    video_file_path = Column(String, nullable=True)  # Change to nullable
-    card_photo_file_path = Column(String, nullable=True)  # Change to nullable
-    podcast_file_path = Column(String, nullable=True)  # Change to nullable
-    filler_photos = Column(JSON, nullable=True)  # Change to nullable
+    video_file_path = Column(String, nullable=True)  
+    card_photo_file_path = Column(String, nullable=True) 
+    podcast_file_path = Column(String, nullable=True)  
+    filler_photos = Column(JSON, nullable=True) 
 
     dish_id = Column(String(length=36), ForeignKey('dishes.id'))
     dish = relationship("Dish", back_populates="content")
@@ -103,3 +106,4 @@ class OtherItem(Base):
     dish_id = Column(String, ForeignKey("dishes.id"))
 
     dish = relationship("Dish", back_populates="other_items")
+

@@ -41,6 +41,7 @@ class DishBase(BaseModel):
     description: str
     is_active: bool
     podcast_name: Optional[str]
+    is_featured: bool = False
 
 class DishCreate(DishBase):
     pass

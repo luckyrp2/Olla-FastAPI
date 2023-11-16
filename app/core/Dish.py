@@ -50,4 +50,13 @@ def get_all_dishes_endpoint(db: Session = Depends(get_db)):
 def update_lat_lon_for_restaurants(db: Session = Depends(get_db)):
     # Use the previously defined function to update the restaurants with missing lat/lon
     return dish_crud.update_dish_content_paths(db)
-    
+
+@router.get("/featured_dish", 
+            response_model=DishSchema.Dish,  # Update with your correct Dish schema
+            summary="Get or Update Featured Dish",
+            status_code=status.HTTP_200_OK)
+def get_featured_dish(update: bool = False, db: Session = Depends(get_db)):
+    featured_dish = dish_crud.get_or_update_featured_dish(db, update)
+    if not featured_dish:
+        raise HTTPException(status_code=404, detail="No available dishes")
+    return featured_dish

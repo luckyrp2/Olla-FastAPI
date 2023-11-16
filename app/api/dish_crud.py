@@ -1,16 +1,16 @@
 from sqlalchemy.orm import Session
-from app.models import models
 from app.schema import DishSchema
 from app.models import models
 from app.enums import search_enums
 from sqlalchemy import and_
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from sqlalchemy.orm import Session, joinedload
 from datetime import time
 from typing import List, Optional
 from app.func.s3_amazon import get_content, FileType
-from sqlalchemy.orm import joinedload
+import random
 
+current_featured_dish_id = None
 
 from app.models import models
 
@@ -213,3 +213,24 @@ def update_dish_content_paths(db: Session) -> List[models.Dish]:
         updated_dishes.append(dish)
 
     return updated_dishes
+
+def get_or_update_featured_dish(db: Session, update: bool):
+    if update:
+        # Reset the is_featured flag for all dishes
+        db.query(models.Dish).update({models.Dish.is_featured: False})
+
+        # Randomly select a new dish to feature
+        dishes = db.query(models.Dish).all()
+        if not dishes:
+            return None
+        featured_dish = random.choice(dishes)
+        featured_dish.is_featured = True
+    else:
+        # Fetch the currently featured dish
+        featured_dish = db.query(models.Dish).filter(models.Dish.is_featured == True).first()
+        if not featured_dish:
+            # Handle the case where no dish is currently featured
+            return None
+
+    db.commit()
+    return featured_dish
