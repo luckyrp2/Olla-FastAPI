@@ -190,4 +190,40 @@ def get_open_restaurants(db: Session, day_of_week: int, current_time_str: str) -
 
     return restaurant_ids
 
+def update_restaurant_by_name(db: Session, restaurant_name: str, update_data: dict):
+    # Find the restaurant by name
+    restaurant = db.query(models.Restaurant).filter(models.Restaurant.name == restaurant_name).first()
+    if not restaurant:
+        return None
 
+    for key, value in update_data.items():
+        if key == 'address':
+            if restaurant.address:
+                # Check if the address data is different from the current address
+                address_changed = any(getattr(restaurant.address, k) != v for k, v in value.items())
+                if address_changed:
+                    # Update fields of the existing address
+                    for addr_key, addr_value in value.items():
+                        setattr(restaurant.address, addr_key, addr_value)
+            else:
+                # Create a new Address if none exists
+                restaurant.address = models.Address(**value)
+        else:
+            setattr(restaurant, key, value)  # Regular attribute
+
+    db.commit()
+    return restaurant
+
+
+def delete_inactive_restaurants(db: Session):
+    # Find all inactive restaurants
+    inactive_restaurants = db.query(models.Restaurant).filter(models.Restaurant.is_active == False).all()
+
+    for restaurant in inactive_restaurants:
+        # Delete associated dishes
+        db.query(models.Dish).filter(models.Dish.restaurant_id == restaurant.id).delete()
+        # Delete the restaurant
+        db.delete(restaurant)
+
+    db.commit()
+    return len(inactive_restaurants)  # Return the count of deleted restaurants

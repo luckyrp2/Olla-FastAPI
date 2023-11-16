@@ -128,3 +128,17 @@ def check_and_update_open_now(check_data: RestaurantSchema.CheckOpenNow, db: Ses
     open_restaurants = restaurant_crud.get_open_restaurants(db=db, day_of_week=check_data.day_of_week.value, current_time_str=check_data.current_time)
     return {"open_restaurants": open_restaurants}
 
+@router.put("/update/{restaurant_name}", response_model=RestaurantSchema.Restaurant)  # Update with your correct schema
+def update_restaurant(restaurant_name: str, update_data: RestaurantSchema.RestaurantUpdate, db: Session = Depends(get_db)):
+    updated_restaurant = restaurant_crud.update_restaurant_by_name(db, restaurant_name, update_data.dict())
+    if not updated_restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+    return updated_restaurant
+
+@router.delete("/delete_inactive_restaurants", status_code=status.HTTP_200_OK)
+def delete_inactive_restaurants_endpoint(db: Session = Depends(get_db)):
+    count = restaurant_crud.delete_inactive_restaurants(db)
+    if count > 0:
+        return {"message": f"Deleted {count} inactive restaurants and their associated dishes"}
+    else:
+        return {"message": "No inactive restaurants found to delete"}

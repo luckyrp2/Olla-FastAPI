@@ -76,7 +76,7 @@ class RestaurantBase(BaseModel):
     chef_name: str
     cuisine: search_enums.CuisineEnum
     establishment_type: search_enums.EstablishmentTypeEnum
-    address: Address
+    address: AddressBase
     description: str
     menu: str
     instagram: str
@@ -88,6 +88,18 @@ class RestaurantBase(BaseModel):
         if len(name) < 3:
             raise ValueError("Restaurant name should be at least 3 characters long.")
         return name
+
+class RestaurantUpdate(BaseModel):
+    chef_name: str
+    cuisine: search_enums.CuisineEnum
+    establishment_type: search_enums.EstablishmentTypeEnum
+    address: AddressBase
+    description: str
+    menu: str
+    instagram: str
+    is_active: bool
+    open_now: search_enums.OpenNowEnum
+
 
 class RestaurantCreate(RestaurantBase):
     pass

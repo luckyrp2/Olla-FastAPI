@@ -61,10 +61,6 @@ def get_dishes_by_food_type(db: Session, food_type: search_enums.FoodTypeEnum) -
             "other_items": [{"id": item.id, "name": item.name, "image_link": item.image_link} for item in dish.other_items],
             # Adding default values for the new fields
             "podcast_name": dish.podcast_name,
-            "podcast_file_path": dish.podcast_file_path,
-            "video_file_path": dish.video_file_path,
-            "card_photo_file_path": dish.card_photo_file_path,
-            "filler_photos": dish.filler_photos
         }
         
         results.append(DishSchema.DishWithRestaurant(**dish_data))
@@ -148,10 +144,6 @@ def get_dishes(db: Session,
             "other_items": [{"id": item.id, "name": item.name, "image_link": item.image_link} for item in dish.other_items],
             # Adding default values for the new fields
             "podcast_name": dish.podcast_name,
-            "podcast_file_path": dish.podcast_file_path,
-            "video_file_path": dish.video_file_path,
-            "card_photo_file_path": dish.card_photo_file_path,
-            "filler_photos": dish.filler_photos
         }
         results.append(DishSchema.DishWithRestaurant(**dish_data))
     
