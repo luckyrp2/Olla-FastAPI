@@ -2,11 +2,9 @@ import sys
 import traceback
 
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Security, HTTPException, status
+from fastapi.security import APIKeyHeader
 from fastapi.openapi.utils import get_openapi
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from starlette.responses import HTMLResponse
 
 # Import Run config
 import app.config.run_config as cfg
@@ -21,6 +19,8 @@ from app.models import models
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+api_key_header = APIKeyHeader(name="Olla-API-Key")
+api_keys = ["my_api_key"]
 
 def custom_openapi():
     if app.openapi_schema:
@@ -38,6 +38,15 @@ def custom_openapi():
 # DB Specific endpoints
 app.include_router(Restaurant.router)
 app.include_router(Dish.router)
+
+def get_api_key(api_key_header: str = Security(api_key_header)) -> str:
+    if api_key_header in api_keys:
+        return api_key_header
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or missing API Key",
+    )
+
 
 if __name__ == '__main__':
     print(f"Starting Olla API --> {cfg.api['host']}:{cfg.api['port']}\n")

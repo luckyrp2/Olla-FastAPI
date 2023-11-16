@@ -9,6 +9,12 @@ from app.func import geo_location
 from app.database.configuration import Base
 
 
+class APIKey(Base):
+    __tablename__ = "api_keys"
+    key = Column(String, primary_key=True)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime)
+
 class Address(Base):
     __tablename__ = "addresses"
 
