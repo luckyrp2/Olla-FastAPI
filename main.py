@@ -59,7 +59,7 @@ if __name__ == '__main__':
             workers=int(cfg.api['workers']),
             log_level=cfg.api['log_level'],
             reload=bool(cfg.api['reload']),
-            debug=bool(cfg.api['debug'])
+            # debug=bool(cfg.api['debug'])   # Only for development
         )
     except KeyboardInterrupt:
         print("Stopping Olla API")
