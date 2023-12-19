@@ -9,9 +9,6 @@ from datetime import time
 from typing import List, Optional
 from app.func.s3_amazon import get_content, FileType
 import random
-
-current_featured_dish_id = None
-
 from app.models import models
 
 # CRUD for Dish
@@ -50,8 +47,10 @@ def get_dishes_by_food_type(db: Session, food_type: search_enums.FoodTypeEnum) -
             "date_added": dish.date_added,
             "menu_name": dish.menu_name,
             "stars": dish.stars,
+            "calories": dish.calories,
             "diet": dish.diet,
             "food_type": dish.food_type,
+            "course_type": dish.course_type,
             "description": dish.description,
             "is_active": dish.is_active,
             "restaurant_info": {
@@ -82,8 +81,10 @@ def get_dishes_by_diet(db: Session, diet_type: search_enums.DietEnum) -> List[Di
             "date_added": dish.date_added,
             "menu_name": dish.menu_name,
             "stars": dish.stars,
+            "calories": dish.calories,
             "diet": dish.diet,
             "food_type": dish.food_type,
+            "course_type": dish.course_type,
             "description": dish.description,
             "is_active": dish.is_active,
             "restaurant_info": {
@@ -133,8 +134,10 @@ def get_dishes(db: Session,
             "date_added": dish.date_added,
             "menu_name": dish.menu_name,
             "stars": dish.stars,
+            "calories": dish.calories,
             "diet": dish.diet,
             "food_type": dish.food_type,
+            "course_type": dish.course_type,
             "description": dish.description,
             "is_active": dish.is_active,
             "restaurant_info": {

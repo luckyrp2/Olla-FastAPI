@@ -26,7 +26,7 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema = get_openapi(
-        title="Olla Api",
+        title="Olla APO",
         description="Olla App",
         routes=app.routes,
     )
@@ -39,13 +39,7 @@ def custom_openapi():
 app.include_router(Restaurant.router)
 app.include_router(Dish.router)
 
-def get_api_key(api_key_header: str = Security(api_key_header)) -> str:
-    if api_key_header in api_keys:
-        return api_key_header
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid or missing API Key",
-    )
+
 
 
 if __name__ == '__main__':

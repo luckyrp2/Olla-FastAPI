@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, validator
-from datetime import datetime, time, timezone
+from datetime import datetime, time
 from app.enums import search_enums
 from app.schema.DishSchema import Dish
 

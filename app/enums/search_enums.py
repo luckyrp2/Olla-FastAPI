@@ -63,7 +63,13 @@ class DayOfWeekEnum(enum.Enum):
     SUNDAY = 6
 
 
-    
+class CourseType(enum.Enum):
+    drink = "Drink"
+    smoothie = "Smoothie"
+    main_course = "Main Course"
+    appetizer = "Appetizer"
+    dessert = "Dessert"
+    tasting = "Tasting"
 
 
 

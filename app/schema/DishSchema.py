@@ -36,8 +36,10 @@ class DishBase(BaseModel):
     date_added: datetime
     menu_name: str
     stars: int
+    calories: int
     diet: search_enums.DietEnum
     food_type: search_enums.FoodTypeEnum
+    course_type: search_enums.CourseType
     description: str
     is_active: bool
     podcast_name: Optional[str]
